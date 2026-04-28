@@ -7,7 +7,7 @@ Installs a set of common command line utilities, Oh My Zsh!, and sets up a non-r
 
 ```json
 "features": {
-    "ghcr.io/devcontainers/features/common-utils:2": {}
+    "ghcr.io/the78mole/features/common-utils:2": {}
 }
 ```
 
@@ -24,8 +24,9 @@ Installs a set of common command line utilities, Oh My Zsh!, and sets up a non-r
 | username | Enter name of a non-root user to configure or none to skip | string | automatic |
 | userUid | Enter UID for non-root user | string | automatic |
 | userGid | Enter GID for non-root user | string | automatic |
-| addGroups | Comma-separated list of additional groups to add the non-root user to. Groups are created if needed. | string |  |
+| addGroups | Comma-separated list of additional groups to add the non-root user to. Groups are created if needed. | string | - |
 | nonFreePackages | Add packages from non-free Debian repository? (Debian only) | boolean | false |
+| installSsl | Install SSL? | boolean | true |
 
 ## OS Support
 
@@ -40,7 +41,7 @@ these images have already allocated UID & GID 1000. Attempting to add this Featu
 
 By default, this script provides a custom command prompt that includes information about the git repository for the current folder. However, with certain large repositories, this can result in a slow command prompt due to the performance of needed git operations.
 
-For performance reasons, a "dirty" indicator that tells you whether or not there are uncommitted changes is disabled by default. You can opt to turn this on for smaller repositories by entering the following in a terminal or adding it to your `postStartCommand`:
+For performance reasons, a "dirty" indicator that tells you whether or not there are uncommitted changes is disabled by default. You can opt to turn this on for smaller repositories by entering the following in a terminal or adding it to your `postCreateCommand`:
 
 ```bash
 git config devcontainers-theme.show-dirty 1
@@ -57,4 +58,4 @@ For `zsh`, the default theme is a [standard Oh My Zsh! theme](https://ohmyz.sh/)
 
 ---
 
-_Note: This file was auto-generated from the [devcontainer-feature.json](https://github.com/devcontainers/features/blob/main/src/common-utils/devcontainer-feature.json).  Add additional notes to a `NOTES.md`._
+_Note: This file was auto-generated from the [devcontainer-feature.json](https://github.com/the78mole/features/blob/main/src/common-utils/devcontainer-feature.json).  Add additional notes to a `NOTES.md`._
