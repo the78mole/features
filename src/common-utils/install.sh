@@ -18,6 +18,7 @@ UPGRADE_PACKAGES="${UPGRADEPACKAGES:-"true"}"
 USERNAME="${USERNAME:-"automatic"}"
 USER_UID="${UID:-"automatic"}"
 USER_GID="${GID:-"automatic"}"
+ADD_GROUPS="${ADDGROUPS:-""}"
 ADD_NON_FREE_PACKAGES="${NONFREEPACKAGES:-"false"}"
 INSTALL_SSL="${INSTALLSSL:-"true"}"
 

@@ -18,6 +18,7 @@ UPGRADE_PACKAGES="${UPGRADEPACKAGES:-"true"}"
 USERNAME="${USERNAME:-"automatic"}"
 USER_UID="${USERUID:-"automatic"}"
 USER_GID="${USERGID:-"automatic"}"
+ADD_GROUPS="${ADDGROUPS:-""}"
 ADD_NON_FREE_PACKAGES="${NONFREEPACKAGES:-"false"}"
 INSTALL_SSL="${INSTALLSSL:-"true"}"
 
@@ -438,6 +439,22 @@ else
     else
         useradd -s /bin/bash --uid $USER_UID --gid $USERNAME -m $USERNAME
     fi
+fi
+
+if [ "${USERNAME}" != "root" ] && [ -n "${ADD_GROUPS}" ]; then
+    IFS=',' read -ra EXTRA_GROUPS <<< "${ADD_GROUPS}"
+    for extra_group in "${EXTRA_GROUPS[@]}"; do
+        extra_group="$(echo "${extra_group}" | xargs)"
+        if [ -z "${extra_group}" ]; then
+            continue
+        fi
+
+        if ! getent group "${extra_group}" > /dev/null 2>&1; then
+            groupadd "${extra_group}"
+        fi
+
+        usermod -a -G "${extra_group}" "${USERNAME}"
+    done
 fi
 
 # Add add sudo support for non-root user

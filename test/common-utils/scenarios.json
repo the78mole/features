@@ -126,6 +126,15 @@
             }
         }
     },
+    "add-groups": {
+        "image": "debian:bullseye",
+        "features": {
+            "common-utils": {
+                "username": "alternate",
+                "addGroups": "dialout,plugdev"
+            }
+        }
+    },
     "username-default": {
         "image": "debian:bullseye",
         "features": {
