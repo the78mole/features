@@ -443,14 +443,58 @@ fi
 
 if [ "${USERNAME}" != "root" ] && [ -n "${ADD_GROUPS}" ]; then
     IFS=',' read -ra EXTRA_GROUPS <<< "${ADD_GROUPS}"
-    for extra_group in "${EXTRA_GROUPS[@]}"; do
-        extra_group="$(echo "${extra_group}" | xargs)"
-        if [ -z "${extra_group}" ]; then
+    for extra_group_entry in "${EXTRA_GROUPS[@]}"; do
+        extra_group_entry="$(echo "${extra_group_entry}" | xargs)"
+        if [ -z "${extra_group_entry}" ]; then
             continue
         fi
 
-        if ! getent group "${extra_group}" > /dev/null 2>&1; then
-            groupadd "${extra_group}"
+        extra_group="${extra_group_entry%%:*}"
+        group_gid=""
+        if [[ "${extra_group_entry}" == *":"* ]]; then
+            group_gid="${extra_group_entry#*:}"
+        fi
+
+        # Try to detect the host GID for this group if not explicitly provided.
+        if [ -z "${group_gid}" ]; then
+            # 1. Check known paths where the host's /etc/group may be mounted.
+            for host_group_file in /host/etc/group /run/host-services/etc/group; do
+                if [ -r "${host_group_file}" ]; then
+                    host_gid="$(grep -m1 "^${extra_group}:" "${host_group_file}" 2>/dev/null | cut -d: -f3 || true)"
+                    if [[ "${host_gid}" =~ ^[0-9]+$ ]]; then
+                        group_gid="${host_gid}"
+                        echo "(*) Detected host GID ${group_gid} for group '${extra_group}' from ${host_group_file}"
+                        break
+                    fi
+                fi
+            done
+        fi
+
+        # 2. Fallback: scan /dev and /run for files already owned by this group name.
+        #    This works for groups with standard GIDs already present in the
+        #    container's group database (e.g. dialout, input, video).
+        if [ -z "${group_gid}" ]; then
+            while IFS= read -r -d '' f; do
+                if [ "$(stat -c '%G' "${f}" 2>/dev/null)" = "${extra_group}" ]; then
+                    group_gid="$(stat -c '%g' "${f}" 2>/dev/null)"
+                    break
+                fi
+            done < <(find /dev /run /var/run -maxdepth 3 -print0 2>/dev/null)
+        fi
+
+        if getent group "${extra_group}" > /dev/null 2>&1; then
+            current_group_gid="$(getent group "${extra_group}" | cut -d: -f3)"
+            if [ -n "${group_gid}" ] && [[ "${group_gid}" =~ ^[0-9]+$ ]] && [ "${current_group_gid}" != "${group_gid}" ]; then
+                if ! getent group "${group_gid}" > /dev/null 2>&1; then
+                    groupmod --gid "${group_gid}" "${extra_group}"
+                fi
+            fi
+        else
+            if [ -n "${group_gid}" ] && [[ "${group_gid}" =~ ^[0-9]+$ ]] && ! getent group "${group_gid}" > /dev/null 2>&1; then
+                groupadd --gid "${group_gid}" "${extra_group}"
+            else
+                groupadd "${extra_group}"
+            fi
         fi
 
         usermod -a -G "${extra_group}" "${USERNAME}"
