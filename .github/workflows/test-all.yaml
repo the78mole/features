@@ -56,6 +56,14 @@ jobs:
       - name: "Install latest devcontainer CLI"
         run: npm install -g @devcontainers/cli
 
+      - name: "Pre-pull Docker Hub images with mirror fallback"
+        if: startsWith(matrix.baseImage, 'debian:') || startsWith(matrix.baseImage, 'ubuntu:')
+        run: |
+          set -euo pipefail
+          image="${{ matrix.baseImage }}"
+          mirror_image="public.ecr.aws/docker/library/${image}"
+          docker pull "${image}" || (docker pull "${mirror_image}" && docker tag "${mirror_image}" "${image}")
+
       - name: "Generating tests for '${{ matrix.features }}' against '${{ matrix.baseImage }}'"
         run: devcontainer features test  --skip-scenarios -f ${{ matrix.features }} -i ${{ matrix.baseImage }} .
 
