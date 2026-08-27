@@ -24,7 +24,7 @@ Installs a set of common command line utilities, Oh My Zsh!, and sets up a non-r
 | username | Enter name of a non-root user to configure or none to skip | string | automatic |
 | userUid | Enter UID for non-root user | string | automatic |
 | userGid | Enter GID for non-root user | string | automatic |
-| addGroups | Comma-separated list of additional groups to add the non-root user to. Groups are created if needed. | string |  |
+| addGroups | Comma-separated list of additional groups to add the non-root user to. Groups are created if needed. Each entry can optionally be group:gid to set an explicit GID. When no GID is provided, the host GID is used if the host's /etc/group is mounted at /host/etc/group or /run/host-services/etc/group, or if matching device files are found in /dev or /run. | string |  |
 | nonFreePackages | Add packages from non-free Debian repository? (Debian only) | boolean | false |
 
 ## OS Support

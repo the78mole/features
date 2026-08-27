@@ -135,6 +135,17 @@
             }
         }
     },
+    "add-groups-sync-to-host": {
+        "build": {
+            "dockerfile": "Dockerfile"
+        },
+        "features": {
+            "common-utils": {
+                "username": "alternate",
+                "addGroups": "docker"
+            }
+        }
+    },
     "username-default": {
         "image": "debian:bullseye",
         "features": {
